@@ -2,7 +2,7 @@
   <div>
     <h1>{{ name }}</h1>
     <hr />
-    <draggable @start="drag = true" @end="drag = false" :list="list" group="name">
+    <draggable @change="update" @start="drag = true" @end="drag = false" :list="list" group="items">
       <transition-group name="flip-list" mode="out-in" type="transition">
         <VBoardItem
           @del-item="$emit('del-item', idx)"
@@ -13,7 +13,8 @@
       </transition-group>
     </draggable>
     <footer>
-      <div @click="showInput" class="plus"></div>
+      <!-- <div @click="showInput" class="plus"></div> -->
+      <img @click="showInput" src="@/assets/add-black.svg" class="plus" />
       <transition mode="out-in" name="fade">
         <input ref="inputFocus" @keypress.enter="addItem" v-if="adding" v-model="text" />
       </transition>
@@ -34,6 +35,9 @@ export default {
     text: '',
   }),
   methods: {
+    update() {
+      this.$forceUpdate();
+    },
     showInput() {
       this.adding = !this.adding;
       setTimeout(() => (this.adding ? this.$refs.inputFocus.focus() : null), 600);
@@ -70,9 +74,12 @@ div {
   border-radius: 0.25rem;
   background: #eee;
   display: flex;
-  flex-basis: 45%;
+  flex-basis: 350px;
+  flex-shrink: 10%;
   flex-direction: column;
   max-width: 500px;
+  overflow: auto;
+  margin: 0.5rem 0.25rem;
 
   h1 {
     font-weight: 200;
@@ -104,25 +111,9 @@ div {
     }
 
     .plus {
-      max-width: 10px;
-      padding-left: 10px;
+      width: 30px;
+      height: auto;
       cursor: pointer;
-      &::after {
-        content: '';
-        height: 1px;
-        width: 11px;
-        background-color: #18181e;
-        transform: translateY(-6px);
-        box-shadow: 0 0 5px rgba(#000000, 0.25);
-      }
-      &::before {
-        content: '';
-        height: 11px;
-        width: 1px;
-        transform: translateX(5px);
-        box-shadow: 0 0 5px rgba(#000000, 0.25);
-        background-color: #18181e;
-      }
     }
   }
 }

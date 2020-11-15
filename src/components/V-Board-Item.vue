@@ -2,7 +2,7 @@
   <div class="item">
     <div class="one-line">
       <h4>{{ item.name }}</h4>
-      <div @click="$emit('del-item')" class="minus"></div>
+      <img @click="$emit('del-item')" src="@/assets/remove-red.svg" class="minus" />
     </div>
   </div>
 </template>
@@ -32,11 +32,9 @@ div.item {
     display: contents;
   }
 
-  div.minus {
-    width: 15px;
-    height: 2px;
-    border-radius: 10px;
-    background: #be2b2b;
+  .minus {
+    width: 25px;
+    height: auto;
     cursor: pointer;
   }
 
