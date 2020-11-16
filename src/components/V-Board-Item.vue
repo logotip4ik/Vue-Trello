@@ -1,7 +1,13 @@
 <template>
   <div class="item">
     <div class="one-line">
-      <h4>{{ item.name }}</h4>
+      <transition @enter="changeName" name="fade" mode="out-in">
+        <h4 @click="showEdit" v-if="!editing">{{ item.name }}</h4>
+        <div class="form" v-else>
+          <input ref="inputName" v-model="newName" @keypress.enter="save" />
+          <img src="@/assets/close-black.svg" @click="closeEditing" />
+        </div>
+      </transition>
       <img @click="$emit('del-item')" src="@/assets/remove-red.svg" class="minus" />
     </div>
   </div>
@@ -10,6 +16,27 @@
 <script>
 export default {
   name: 'Board-Item',
+  data: () => ({
+    editing: false,
+    newName: '',
+  }),
+  methods: {
+    save() {
+      this.editing = false;
+      console.log(this.newName);
+    },
+    closeEditing() {
+      this.newName = '';
+      this.editing = false;
+    },
+    showEdit() {
+      this.editing = !this.editing;
+      setTimeout(() => this.$refs.inputName.focus(), 100);
+    },
+    changeName() {
+      this.newName = this.$props.item.name;
+    },
+  },
   props: {
     item: {
       type: Object,
@@ -28,6 +55,7 @@ div.item {
   margin-bottom: 0.5rem;
 
   h4 {
+    font-size: 1rem;
     font-weight: 200;
     display: contents;
   }
@@ -42,6 +70,37 @@ div.item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .form {
+      position: relative;
+      width: 80%;
+      height: 1.5rem;
+      box-shadow: 0 0 3px rgba($color: #3691ce, $alpha: 0.8);
+      border-radius: 0.25rem;
+
+      input {
+        margin-top: 0.1rem;
+        padding-right: 1rem;
+        width: 97%;
+        appearance: none;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        font-family: inherit;
+        font-weight: 200;
+      }
+
+      img {
+        position: absolute;
+        width: 18px;
+        height: auto;
+        top: 50%;
+        right: 3px;
+        transform: translateY(-50%);
+        cursor: pointer;
+      }
+    }
   }
 
   &::after {
