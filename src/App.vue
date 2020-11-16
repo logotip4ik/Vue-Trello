@@ -37,7 +37,7 @@ export default {
       },
     },
     lists: {
-      todoList: [{ name: 'helllo', id: 123 }],
+      todoList: [{ name: 'hello', id: v4() }],
     },
     db: {},
     creatingBoard: false,

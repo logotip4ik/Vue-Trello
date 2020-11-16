@@ -5,7 +5,7 @@
     <draggable @change="update" @start="drag = true" @end="drag = false" :list="list" group="items">
       <transition-group name="flip-list" mode="out-in" type="transition">
         <VBoardItem
-          @del-item="$emit('del-item', idx)"
+          @del-item="delItem(idx)"
           v-for="(item, idx) in list"
           :key="item.id"
           :item="item"
@@ -46,6 +46,10 @@ export default {
       this.$emit('add-item', this.text);
       this.adding = false;
       this.text = '';
+    },
+    delItem(idx) {
+      this.$emit('del-item', idx);
+      this.$forceUpdate();
     },
   },
   props: {

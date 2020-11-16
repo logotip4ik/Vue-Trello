@@ -4,7 +4,7 @@
       <VBoardCreateNavbar @add-board="save" @close="$emit('close')"></VBoardCreateNavbar>
       <div class="main">
         <h3>Name for new Board:</h3>
-        <input v-model="name" />
+        <input @keypress.enter="save" ref="inputName" v-model="name" />
         <div class="buttons">
           <button @click="save" class="save">Save</button>
           <button @click="cancel" class="cancel">Cancel</button>
@@ -47,6 +47,7 @@ export default {
       gsap.from(el, {
         yPercent: 100,
         ease: 'power2.out',
+        onComplete: () => this.$refs.inputName.focus(),
       });
     },
     leaveAnim(el) {
