@@ -1,6 +1,9 @@
 <template>
   <div class="main">
-    <VNavbar @create-board="creatingBoard = !creatingBoard"></VNavbar>
+    <VNavbar
+      @create-board="creatingBoard = !creatingBoard"
+      @show-settings="settingsBoards = !settingsBoards"
+    ></VNavbar>
     <div class="boards">
       <VBoard
         v-for="board in boards"
@@ -12,6 +15,12 @@
         :name="board.name"
       ></VBoard>
     </div>
+    <VSettings
+      :show="settingsBoards"
+      :boards="boards"
+      @close="settingsBoards = false"
+      @save-boards="saveBoards"
+    ></VSettings>
     <VBoardCreate
       @add-board="addBoard"
       :show="creatingBoard"
@@ -25,14 +34,16 @@ import { v4 } from 'uuid';
 // import { openDB } from 'idb';
 
 import VBoard from './components/V-Board.vue';
-import VBoardCreate from './components/V-Board-Create.vue';
 import VNavbar from './components/V-Navbar.vue';
+import VSettings from './components/V-Settings.vue';
+import VBoardCreate from './components/V-Board-Create.vue';
 
 export default {
   name: 'App',
   data: () => ({
     boards: {
       todo: {
+        id: v4(),
         name: 'todo',
         list: 'todoList',
       },
@@ -42,6 +53,7 @@ export default {
     },
     db: {},
     creatingBoard: false,
+    settingsBoards: false,
   }),
   // async mounted() {
   //   const collections = ['items', 'board'];
@@ -68,10 +80,14 @@ export default {
     addBoard(name) {
       const list = `${name}List`;
       this.boards[name] = {
+        id: v4(),
         name,
         list,
       };
       this.lists[list] = [];
+    },
+    saveBoards(boards) {
+      this.boards = boards;
     },
     getList(board) {
       const listName = board.list;
@@ -91,6 +107,7 @@ export default {
   components: {
     VBoard,
     VNavbar,
+    VSettings,
     VBoardCreate,
   },
 };

@@ -79,6 +79,7 @@ div.item {
       height: auto;
       vertical-align: middle;
       margin-right: 0.25rem;
+      cursor: pointer;
     }
 
     .form {

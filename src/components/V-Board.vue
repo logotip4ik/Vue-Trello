@@ -21,7 +21,6 @@
       </transition-group>
     </draggable>
     <footer>
-      <!-- <div @click="showInput" class="plus"></div> -->
       <img @click="showInput" src="@/assets/add-black.svg" class="plus" />
       <transition mode="out-in" name="fade">
         <input ref="inputFocus" @keypress.enter="addItem" v-if="adding" v-model="text" />

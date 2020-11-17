@@ -22,11 +22,10 @@ import VBoardCreateNavbar from './V-Board-Create-Navbar.vue';
 export default {
   name: 'Craete-Board',
   data: () => ({
-    listener: '',
     name: '',
   }),
   mounted() {
-    this.listener = window.addEventListener('keyup', (event) => {
+    window.addEventListener('keyup', (event) => {
       if (!this.show) return;
       if (event.key === 'Escape') {
         this.$emit('close');
@@ -38,6 +37,7 @@ export default {
       if (!this.name) return;
       this.$emit('add-board', this.name);
       this.$emit('close');
+      this.name = '';
     },
     cancel() {
       this.name = '';

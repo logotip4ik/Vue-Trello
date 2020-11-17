@@ -2,7 +2,7 @@
   <nav>
     <div>
       <img @click="$emit('close')" src="@/assets/close-black.svg" />
-      <h2>Create Board</h2>
+      <h2>{{ name }}</h2>
     </div>
 
     <img @click="$emit('add-board')" src="@/assets/check-black.svg" />
@@ -12,6 +12,13 @@
 <script>
 export default {
   name: 'Board-Create-Navbar',
+  props: {
+    name: {
+      type: String,
+      required: false,
+      default: 'Create Board',
+    },
+  },
 };
 </script>
 
