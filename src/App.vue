@@ -6,6 +6,7 @@
         v-for="board in boards"
         :key="board.name"
         @add-item="addItem($event, board.list)"
+        @change-name="changeName($event, board.list)"
         @del-item="delItem($event, board.list)"
         :list="getList(board)"
         :name="board.name"
@@ -79,6 +80,9 @@ export default {
     },
     addItem(name, arr) {
       this.lists[arr].push({ name, id: v4() });
+    },
+    changeName({ name, idx }, arr) {
+      this.lists[arr][idx].name = name;
     },
     delItem(idx, arr) {
       this.lists[arr].splice(idx, 1);

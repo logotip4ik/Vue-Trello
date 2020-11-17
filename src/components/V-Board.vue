@@ -2,10 +2,18 @@
   <div>
     <h1>{{ name }}</h1>
     <hr />
-    <draggable @change="update" @start="drag = true" @end="drag = false" :list="list" group="items">
+    <draggable
+      @change="update"
+      @start="drag = true"
+      @end="drag = false"
+      :list="list"
+      group="items"
+      handle=".handle"
+    >
       <transition-group name="flip-list" mode="out-in" type="transition">
         <VBoardItem
           @del-item="delItem(idx)"
+          @change-name="changeName($event, idx)"
           v-for="(item, idx) in list"
           :key="item.id"
           :item="item"
@@ -46,6 +54,9 @@ export default {
       this.$emit('add-item', this.text);
       this.adding = false;
       this.text = '';
+    },
+    changeName(name, idx) {
+      this.$emit('change-name', { name, idx });
     },
     delItem(idx) {
       this.$emit('del-item', idx);

@@ -1,13 +1,16 @@
 <template>
   <div class="item">
     <div class="one-line">
-      <transition @enter="changeName" name="fade" mode="out-in">
-        <h4 @click="showEdit" v-if="!editing">{{ item.name }}</h4>
-        <div class="form" v-else>
-          <input ref="inputName" v-model="newName" @keypress.enter="save" />
-          <img src="@/assets/close-black.svg" @click="closeEditing" />
-        </div>
-      </transition>
+      <div>
+        <img v-if="!editing" src="@/assets/handle-black.svg" class="handle" />
+        <transition @enter="changeName" mode="out-in">
+          <h4 @click="showEdit" v-if="!editing">{{ item.name }}</h4>
+          <div class="form" v-else>
+            <input ref="inputName" v-model="newName" @keypress.enter="save" />
+            <img src="@/assets/close-black.svg" @click="closeEditing" />
+          </div>
+        </transition>
+      </div>
       <img @click="$emit('del-item')" src="@/assets/remove-red.svg" class="minus" />
     </div>
   </div>
@@ -23,7 +26,7 @@ export default {
   methods: {
     save() {
       this.editing = false;
-      console.log(this.newName);
+      this.$emit('change-name', this.newName);
     },
     closeEditing() {
       this.newName = '';
@@ -70,6 +73,13 @@ div.item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .handle {
+      width: 22px;
+      height: auto;
+      vertical-align: middle;
+      margin-right: 0.25rem;
+    }
 
     .form {
       position: relative;
