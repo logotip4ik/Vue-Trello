@@ -18,18 +18,21 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import gsap from 'gsap';
 
 import VMenu from './V-Menu.vue';
 
 export default {
   name: 'Navbar',
-  data: () => ({
-    showingMenu: false,
-  }),
-  methods: {
-    enterAnim(el) {
-      gsap.to(this.$refs.image, {
+  setup(_, { emit }) {
+    const image = ref(null);
+
+    const showingMenu = ref(false);
+
+    // ANIMATIONS
+    function enterAnim(el) {
+      gsap.to(image.value, {
         xPercent: -500,
         zIndex: 1000,
         background: '#eee',
@@ -39,9 +42,9 @@ export default {
       gsap.from(el, {
         xPercent: 100,
       });
-    },
-    leaveAnim(el) {
-      gsap.to(this.$refs.image, {
+    }
+    function leaveAnim(el) {
+      gsap.to(image.value, {
         xPercent: 0,
         zIndex: 0,
         rotate: 0,
@@ -50,16 +53,29 @@ export default {
       gsap.to(el, {
         xPercent: 100,
       });
-    },
-    showSettingsBoards() {
-      this.$emit('show-settings');
-      this.showingMenu = false;
-    },
-    showCreateBoard() {
-      this.$emit('create-board');
-      this.showingMenu = false;
-    },
+    }
+
+    function showSettingsBoards() {
+      emit('show-settings');
+      showingMenu.value = false;
+    }
+    function showCreateBoard() {
+      emit('create-board');
+      showingMenu.value = false;
+    }
+
+    return {
+      image,
+      // data
+      showingMenu,
+      // functions
+      enterAnim,
+      leaveAnim,
+      showSettingsBoards,
+      showCreateBoard,
+    };
   },
+  methods: {},
   components: {
     VMenu,
   },

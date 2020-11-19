@@ -8,10 +8,10 @@
       <VBoard
         v-for="board in boards"
         :key="board.name"
-        @add-item="addItem($event, board.list)"
-        @change-name="changeName($event, board.list)"
-        @del-item="delItem($event, board.list)"
-        :list="getList(board)"
+        @add-item="addItem($event, board.name)"
+        @change-name="changeName($event, board.name)"
+        @del-item="delItem($event, board.name)"
+        :list="board.items"
         :name="board.name"
       ></VBoard>
     </div>
@@ -30,8 +30,9 @@
 </template>
 
 <script>
+import { reactive, ref } from 'vue';
 import { v4 } from 'uuid';
-// import { openDB } from 'idb';
+// import Dexie from 'dexie';
 
 import VBoard from './components/V-Board.vue';
 import VNavbar from './components/V-Navbar.vue';
@@ -40,68 +41,67 @@ import VBoardCreate from './components/V-Board-Create.vue';
 
 export default {
   name: 'App',
-  data: () => ({
-    boards: {
+  setup() {
+    const creatingBoard = ref(false);
+    const settingsBoards = ref(false);
+    const boards = reactive({
       todo: {
         id: v4(),
         name: 'todo',
-        list: 'todoList',
+        items: [
+          {
+            id: v4(),
+            name: 'test',
+          },
+        ],
       },
-    },
-    lists: {
-      todoList: [{ name: 'hello', id: v4() }],
-    },
-    db: {},
-    creatingBoard: false,
-    settingsBoards: false,
-  }),
-  // async mounted() {
-  //   const collections = ['items', 'board'];
-  //   let needToFill = false;
+    });
 
-  //   const db = await openDB('vue-trello', 1, {
-  //     upgrade: (database) => {
-  //       // prettier-ignore
-  //       collections.forEach((collection) => {
-  //         if (!database.objectStoreNames.contains(collection)) {
-  //           database.createObjectStore(collection, { keyPath: 'id' });
-  //           needToFill = true;
-  //         }
-  //       });
-  //     },
-  //   });
-
-  //   if (needToFill) {
-  //     this
-  //     await db.put('items', { name: 'hello world', id: v4(), board: 'todo' });
-  //   }
-  // },
-  methods: {
-    addBoard(name) {
-      const list = `${name}List`;
-      this.boards[name] = {
+    // BOARD Functions
+    function addBoard(name) {
+      boards[name] = {
         id: v4(),
         name,
-        list,
+        items: [],
       };
-      this.lists[list] = [];
-    },
+    }
+
+    // ITEM Functions
+    function addItem(itemName, boardName) {
+      const item = { id: v4(), name: itemName };
+      boards[boardName].items.push(item);
+    }
+    function changeName({ name: newName, idx: itemIdx }, board) {
+      boards[board].items[itemIdx].name = newName;
+    }
+    function delItem(itemIdx, board) {
+      boards[board].items.splice(itemIdx, 1);
+    }
+
+    return {
+      // data
+      boards,
+      creatingBoard,
+      settingsBoards,
+      // Functions
+      addBoard,
+      addItem,
+      changeName,
+      delItem,
+    };
+  },
+  // mounted() {
+  //   const db = new Dexie('vue-trello');
+
+  //   db.version(1).stores({
+  //     boards: '&id, name, *items',
+  //   });
+
+  //   this.db = db;
+  // },
+  methods: {
     saveBoards(boards) {
       this.boards = boards;
-    },
-    getList(board) {
-      const listName = board.list;
-
-      return this.lists[listName];
-    },
-    addItem(name, arr) {
-      this.lists[arr].push({ name, id: v4() });
-    },
-    changeName({ name, idx }, arr) {
-      this.lists[arr][idx].name = name;
-    },
-    delItem(idx, arr) {
-      this.lists[arr].splice(idx, 1);
     },
   },
   components: {
