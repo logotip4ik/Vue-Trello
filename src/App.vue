@@ -31,7 +31,7 @@
 
 <script>
 import { v4 } from 'uuid';
-import Dexie from 'dexie';
+// import Dexie from 'dexie';
 
 import VBoard from './components/V-Board.vue';
 import VNavbar from './components/V-Navbar.vue';
@@ -40,58 +40,51 @@ import VBoardCreate from './components/V-Board-Create.vue';
 
 export default {
   name: 'App',
-  data: () => ({
-    boards: {
+  setup() {
+    const creatingBoard = ref(false);
+    const settingsBoards = ref(false);
+    const boards = reactive({
       todo: {
         id: v4(),
         name: 'todo',
-        list: 'todoList',
+        items: [
+          {
+            id: v4(),
+            name: 'test',
+          },
+        ],
       },
-    },
-    lists: {
-      todoList: [{ name: 'hello', id: v4() }],
-    },
-    db: {},
-    creatingBoard: false,
-    settingsBoards: false,
-  }),
-  mounted() {
-    const db = new Dexie('vue-trello');
-
-    db.version(1).stores({
-      boards: '&id, name, *items',
     });
-
-    this.db = db;
-  },
-  methods: {
-    addBoard(name) {
-      const list = `${name}List`;
-      this.boards[name] = {
+    // BOARD Functions
+    function addBoard(name) {
+      boards[name] = {
         id: v4(),
         name,
-        list,
+        items: [],
       };
-      this.lists[list] = [];
-    },
-    saveBoards(boards) {
-      this.boards = boards;
-    },
-    getList(board) {
-      const listName = board.list;
-
-      return this.lists[listName];
-    },
-    addItem(name, arr) {
-      const item = { name, id: v4() };
-      this.lists[arr].push(item);
-    },
-    changeName({ name, idx }, arr) {
-      this.lists[arr][idx].name = name;
-    },
-    delItem(idx, arr) {
-      this.lists[arr].splice(idx, 1);
-    },
+    }
+    // ITEM Functions
+    function addItem(itemName, boardName) {
+      const item = { id: v4(), name: itemName };
+      boards[boardName].items.push(item);
+    }
+    function changeName({ name: newName, idx: itemIdx }, board) {
+      boards[board].items[itemIdx].name = newName;
+    }
+    function delItem(itemIdx, board) {
+      boards[board].items.splice(itemIdx, 1);
+    }
+    return {
+      // data
+      boards,
+      creatingBoard,
+      settingsBoards,
+      // Functions
+      addBoard,
+      addItem,
+      changeName,
+      delItem,
+    };
   },
   components: {
     VBoard,

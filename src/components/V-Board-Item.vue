@@ -7,7 +7,7 @@
           <h4 @click="showEdit" v-if="!editing">{{ item.name }}</h4>
           <div class="form" v-else>
             <input ref="inputName" v-model="newName" @keypress.enter="save" />
-            <img src="@/assets/close-black.svg" @click="closeEditing" />
+            <img src="@/assets/close-black.svg" @click="cancelEditing" />
           </div>
         </transition>
       </div>
@@ -17,28 +17,43 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
   name: 'Board-Item',
-  data: () => ({
-    editing: false,
-    newName: '',
-  }),
-  methods: {
-    save() {
-      this.editing = false;
-      this.$emit('change-name', this.newName);
-    },
-    closeEditing() {
-      this.newName = '';
-      this.editing = false;
-    },
-    showEdit() {
-      this.editing = !this.editing;
-      setTimeout(() => this.$refs.inputName.focus(), 100);
-    },
-    changeName() {
-      this.newName = this.$props.item.name;
-    },
+  setup(props, { emit }) {
+    const inputName = ref(null);
+
+    const editing = ref(false);
+    const newName = ref('');
+
+    function save() {
+      editing.value = false;
+      emit('change-name', newName.value);
+    }
+    function showEdit() {
+      editing.value = !editing.value;
+      setTimeout(() => inputName.value.focus(), 100);
+    }
+    function cancelEditing() {
+      editing.value = false;
+      newName.value = '';
+    }
+    function changeName() {
+      newName.value = props.item.name;
+    }
+
+    return {
+      inputName,
+      // data
+      editing,
+      newName,
+      // functions
+      save,
+      showEdit,
+      cancelEditing,
+      changeName,
+    };
   },
   props: {
     item: {
@@ -56,6 +71,7 @@ div.item {
   box-shadow: 0 0 10px rgba($color: #000000, $alpha: 0.1),
     0 1px 2px rgba($color: #000000, $alpha: 0.2) !important;
   margin-bottom: 0.5rem;
+  max-height: 50px;
 
   h4 {
     font-size: 1rem;

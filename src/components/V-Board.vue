@@ -2,14 +2,7 @@
   <div>
     <h1>{{ name }}</h1>
     <hr />
-    <draggable
-      @change="update"
-      @start="drag = true"
-      @end="drag = false"
-      :list="list"
-      group="items"
-      handle=".handle"
-    >
+    <draggable @start="drag = true" @end="drag = false" :list="list" group="items" handle=".handle">
       <transition-group name="flip-list" mode="out-in" type="transition">
         <VBoardItem
           @del-item="delItem(idx)"
@@ -23,44 +16,53 @@
     <footer>
       <img @click="showInput" src="@/assets/add-black.svg" class="plus" />
       <transition mode="out-in" name="fade">
-        <input ref="inputFocus" @keypress.enter="addItem" v-if="adding" v-model="text" />
+        <input ref="inputFocus" @keypress.enter="addItem" v-if="adding" v-model="newName" />
       </transition>
     </footer>
   </div>
 </template>
 
 <script>
-import draggable from 'vuedraggable';
+import { ref } from 'vue';
+import { VueDraggableNext } from 'vue-draggable-next';
 
 import VBoardItem from './V-Board-Item.vue';
 
 export default {
   name: 'Board',
-  data: () => ({
-    drag: false,
-    adding: false,
-    text: '',
-  }),
-  methods: {
-    update() {
-      this.$forceUpdate();
-    },
-    showInput() {
-      this.adding = !this.adding;
-      setTimeout(() => (this.adding ? this.$refs.inputFocus.focus() : null), 600);
-    },
-    addItem() {
-      this.$emit('add-item', this.text);
-      this.adding = false;
-      this.text = '';
-    },
-    changeName(name, idx) {
-      this.$emit('change-name', { name, idx });
-    },
-    delItem(idx) {
-      this.$emit('del-item', idx);
-      this.$forceUpdate();
-    },
+  setup(_, { emit }) {
+    const inputFocus = ref(null);
+
+    const adding = ref(false);
+    const newName = ref('');
+
+    function showInput() {
+      adding.value = !adding.value;
+      setTimeout(() => (adding.value ? inputFocus.value.focus() : null), 400);
+    }
+    function addItem() {
+      emit('add-item', newName.value);
+      adding.value = false;
+      newName.value = '';
+    }
+    function changeName(name, idx) {
+      emit('change-name', { name, idx });
+    }
+    function delItem(idx) {
+      emit('del-item', idx);
+    }
+
+    return {
+      inputFocus,
+      // data
+      adding,
+      newName,
+      // functions
+      showInput,
+      addItem,
+      changeName,
+      delItem,
+    };
   },
   props: {
     list: {
@@ -75,7 +77,7 @@ export default {
     },
   },
   components: {
-    draggable,
+    draggable: VueDraggableNext,
     VBoardItem,
   },
 };

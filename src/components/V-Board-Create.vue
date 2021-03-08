@@ -1,5 +1,5 @@
 <template>
-  <transition @enter="enterAnim" @before-leave="leaveAnim" :duration="{ leave: 800 }">
+  <transition @enter="enterAnim" @before-leave="leaveAnim" :duration="{ enter: 800, leave: 800 }">
     <div class="bg" v-if="show">
       <VBoardCreateNavbar @add-board="save" @close="$emit('close')"></VBoardCreateNavbar>
       <div class="main">
@@ -15,48 +15,63 @@
 </template>
 
 <script>
+import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
 
 import VBoardCreateNavbar from './V-Board-Create-Navbar.vue';
 
 export default {
   name: 'Craete-Board',
-  data: () => ({
-    name: '',
-  }),
-  mounted() {
-    window.addEventListener('keyup', (event) => {
-      if (!this.show) return;
-      if (event.key === 'Escape') {
-        this.$emit('close');
-      }
+  setup(props, { emit }) {
+    const inputName = ref(null);
+    const name = ref('');
+
+    onMounted(() => {
+      window.addEventListener('keyup', (event) => {
+        if (!props.show) return;
+        if (event.key === 'Escape') {
+          emit('close');
+        }
+      });
     });
-  },
-  methods: {
-    save() {
-      if (!this.name) return;
-      this.$emit('add-board', this.name);
-      this.$emit('close');
-      this.name = '';
-    },
-    cancel() {
-      this.name = '';
-      this.$emit('close');
-    },
-    enterAnim(el) {
+
+    // ANIMATIONS
+    function enterAnim(el) {
       gsap.from(el, {
         yPercent: 100,
         ease: 'power2.out',
-        onComplete: () => this.$refs.inputName.focus(),
+        onComplete: () => inputName.value.focus(),
       });
-    },
-    leaveAnim(el) {
+    }
+    function leaveAnim(el) {
       gsap.to(el, {
         duration: 0.8,
         yPercent: 100,
         ease: 'power2.out',
       });
-    },
+    }
+
+    function save() {
+      if (!name.value) return;
+      emit('add-board', name.value);
+      emit('close');
+      name.value = '';
+    }
+    function cancel() {
+      emit('close');
+      name.value = '';
+    }
+
+    return {
+      inputName,
+      // data
+      name,
+      // functions
+      save,
+      cancel,
+      enterAnim,
+      leaveAnim,
+    };
   },
   props: {
     show: {

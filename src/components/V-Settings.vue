@@ -1,5 +1,5 @@
 <template>
-  <transition @enter="enterAnim" @before-leave="leaveAnim" :duration="{ leave: 800 }">
+  <transition @enter="enterAnim" @before-leave="leaveAnim" :duration="{ enter: 800, leave: 800 }">
     <div v-if="show" class="bg">
       <VBoardCreateNavbar
         name="Change Boards"
@@ -10,7 +10,7 @@
         <div>
           <h1>Boards</h1>
           <hr />
-          <draggable @change="update" v-model="list" group="boards" handle=".handle">
+          <draggable v-model="list" group="boards" handle=".handle">
             <transition-group name="flip-list" mode="out-in" type="transition">
               <VBoardItem
                 @del-item="delItem(item.name)"
@@ -28,72 +28,79 @@
 </template>
 
 <script>
+import { computed, onMounted, ref } from 'vue';
 import gsap from 'gsap';
 
-import draggable from 'vuedraggable';
+import { VueDraggableNext } from 'vue-draggable-next';
 import VBoardItem from './V-Board-Item.vue';
 import VBoardCreateNavbar from './V-Board-Create-Navbar.vue';
 
 export default {
   name: 'Settings',
-  data: () => ({
-    rawBoards: {},
-  }),
-  mounted() {
-    window.addEventListener('keyup', (event) => {
-      if (!this.show) return;
-      if (event.key === 'Escape') {
-        this.$emit('close');
-      }
-    });
-  },
-  computed: {
-    list: {
-      get() {
-        return Object.values(this.rawBoards);
-      },
-      set(val) {
+  setup(props, { emit }) {
+    const rawBoards = ref({});
+    const list = computed({
+      get: () => Object.values(rawBoards.value),
+      set: (val) => {
         const boards = {};
         val.forEach((item) => {
           boards[item.name] = item;
         });
-        this.rawBoards = boards;
+        rawBoards.value = boards;
       },
-    },
-  },
-  methods: {
-    save() {
-      this.$emit('save-boards', this.rawBoards);
-      this.$emit('close');
-    },
-    update() {
-      this.$forceUpdate();
-    },
-    changeName(newName, objName) {
-      this.rawBoards[objName].name = newName;
-    },
-    delItem(name) {
-      delete this.rawBoards[name];
-      this.$forceUpdate();
-    },
-    enterAnim(el) {
-      this.rawBoards = { ...this.boards };
+    });
+
+    onMounted(() => {
+      window.addEventListener('keyup', (event) => {
+        if (!props.show) return;
+        if (event.key === 'Escape') {
+          emit('close');
+        }
+      });
+    });
+
+    // ANIMATIONS
+    function enterAnim(el) {
+      rawBoards.value = props.boards;
       gsap.from(el, {
         yPercent: 100,
         ease: 'power2.out',
       });
-      this.$forceUpdate();
-    },
-    leaveAnim(el) {
+    }
+    function leaveAnim(el) {
       gsap.to(el, {
         duration: 0.8,
         yPercent: 100,
         ease: 'power2.out',
       });
-    },
+    }
+
+    function save() {
+      emit('save-boards', rawBoards.value);
+      emit('close');
+    }
+    function changeName(newName, objName) {
+      rawBoards.value[objName].name = newName;
+    }
+    function delItem(boardName) {
+      delete rawBoards.value[boardName];
+    }
+
+    return {
+      // data
+      list,
+      rawBoards,
+      // functions
+      save,
+      changeName,
+      delItem,
+      enterAnim,
+      leaveAnim,
+    };
   },
+  mounted() {},
   components: {
-    draggable,
+    draggable: VueDraggableNext,
     VBoardItem,
     VBoardCreateNavbar,
   },
