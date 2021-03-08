@@ -31,7 +31,7 @@
 
 <script>
 import { v4 } from 'uuid';
-// import { openDB } from 'idb';
+import Dexie from 'dexie';
 
 import VBoard from './components/V-Board.vue';
 import VNavbar from './components/V-Navbar.vue';
@@ -55,27 +55,15 @@ export default {
     creatingBoard: false,
     settingsBoards: false,
   }),
-  // async mounted() {
-  //   const collections = ['items', 'board'];
-  //   let needToFill = false;
+  mounted() {
+    const db = new Dexie('vue-trello');
 
-  //   const db = await openDB('vue-trello', 1, {
-  //     upgrade: (database) => {
-  //       // prettier-ignore
-  //       collections.forEach((collection) => {
-  //         if (!database.objectStoreNames.contains(collection)) {
-  //           database.createObjectStore(collection, { keyPath: 'id' });
-  //           needToFill = true;
-  //         }
-  //       });
-  //     },
-  //   });
+    db.version(1).stores({
+      boards: '&id, name, *items',
+    });
 
-  //   if (needToFill) {
-  //     this
-  //     await db.put('items', { name: 'hello world', id: v4(), board: 'todo' });
-  //   }
-  // },
+    this.db = db;
+  },
   methods: {
     addBoard(name) {
       const list = `${name}List`;
@@ -95,7 +83,8 @@ export default {
       return this.lists[listName];
     },
     addItem(name, arr) {
-      this.lists[arr].push({ name, id: v4() });
+      const item = { name, id: v4() };
+      this.lists[arr].push(item);
     },
     changeName({ name, idx }, arr) {
       this.lists[arr][idx].name = name;
